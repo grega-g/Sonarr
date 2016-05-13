@@ -45,10 +45,23 @@ module.exports = Marionette.ItemView.extend({
         element.find('.fc-day-grid-container').css('height', '');
     },
 
+	_numberPadding : function(num, size) {
+		var s = "000000000" + num;
+		return s.substr(s.length-size);
+    },
+	
     _eventRender : function(event, element) {
         element.addClass(event.statusLevel);
         element.children('.fc-content').addClass(event.statusLevel);
 
+		element.find('.fc-title').html(event.model.get('seasonNumber') + 'x' +  this._numberPadding(event.model.get('episodeNumber'),2) + ' ' + event.model.get('series').title);
+		element.find('.fc-time').remove();
+		
+		if (event.model.get('seasonNumber') === 0)
+		{
+			return false;
+		}
+		
         if (event.downloading) {
             var progress = 100 - event.downloading.get('sizeleft') / event.downloading.get('size') * 100;
             var releaseTitle = event.downloading.get('title');
@@ -77,7 +90,7 @@ module.exports = Marionette.ItemView.extend({
             }
 
             else {
-                element.find('.fc-time').after('<span class="chart pull-right" data-percent="{0}"></span>'.format(progress));
+                element.find('.fc-title').before('<span class="chart pull-right" data-percent="{0}"></span>'.format(progress));
 
                 element.find('.chart').easyPieChart({
                     barColor   : '#ffffff',
@@ -269,7 +282,7 @@ module.exports = Marionette.ItemView.extend({
     },
 
     _addStatusIcon : function(element, icon, tooltip) {
-        element.find('.fc-time').after('<span class="status pull-right"><i class="{0}"></i></span>'.format(icon));
+        element.find('.fc-title').before('<span class="status pull-left"><i class="{0}"></i></span>'.format(icon));
         element.find('.status').tooltip({
             title     : tooltip,
             container : '.fc'
